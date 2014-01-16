@@ -693,7 +693,7 @@ AC_ARG_ENABLE(gc-debug,
                  of checking for writes past the end (see doc/README.macros).])
 
     case $host in
-      ia64-*-linux* )
+      ia64-*-linux* | *-*-darwin*)
         AC_DEFINE(MAKE_BACK_GRAPH)
         AC_DEFINE(SAVE_CALL_COUNT, 8)
         AC_CHECK_LIB(unwind, backtrace, [
