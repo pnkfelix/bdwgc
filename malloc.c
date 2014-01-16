@@ -485,7 +485,7 @@ GC_API void GC_CALL GC_free(void * p)
     if (p == 0) return;
         /* Required by ANSI.  It's not my fault ...     */
 #   ifdef LOG_ALLOCS
-      GC_log_printf("GC_free(%p) after GC #%lu\n",
+      GC_log_printf("GC_free(%p) after GC #%lu",
                     p, (unsigned long)GC_gc_no);
 #   endif
     h = HBLKPTR(p);
@@ -497,10 +497,20 @@ GC_API void GC_CALL GC_free(void * p)
         /* initialization.  For the others, this seems to happen        */
         /* implicitly.                                                  */
         /* Don't try to deallocate that memory.                         */
-        if (0 == hhdr) return;
+        if (0 == hhdr) {
+#   ifdef LOG_ALLOCS
+           GC_log_printf("\n", sz);
+#   endif
+           return;
+        }
 #   endif
     GC_ASSERT(GC_base(p) == p);
     sz = hhdr -> hb_sz;
+
+#   ifdef LOG_ALLOCS
+    GC_log_printf(" size: %lu\n", sz);
+#   endif
+
     ngranules = BYTES_TO_GRANULES(sz);
     knd = hhdr -> hb_obj_kind;
     ok = &GC_obj_kinds[knd];
