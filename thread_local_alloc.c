@@ -144,7 +144,7 @@ GC_INNER void GC_destroy_thread_local(GC_tlfs p)
   GC_bool GC_is_thread_tsd_valid(void *tsd);
 #endif
 
-GC_API void * GC_CALL GC_malloc(size_t bytes)
+GC_API void * GC_CALL GC_malloc_core(size_t bytes)
 {
     size_t granules = ROUNDED_UP_GRANULES(bytes);
     void *tsd;
@@ -174,9 +174,15 @@ GC_API void * GC_CALL GC_malloc(size_t bytes)
     tiny_fl = ((GC_tlfs)tsd) -> normal_freelists;
     GC_FAST_MALLOC_GRANS(result, granules, tiny_fl, DIRECT_GRANULES,
                          NORMAL, GC_core_malloc(bytes), obj_link(result)=0);
+
+    return result;
+}
+
+GC_API void * GC_CALL GC_malloc(size_t bytes) {
+    void *result = GC_malloc_core(bytes);
 #   ifdef LOG_ALLOCS
-      GC_log_printf("GC_malloc(%lu) returned %p, recent GC #%lu\n",
-                    (unsigned long)bytes, result, (unsigned long)GC_gc_no);
+     GC_log_printf("GC_malloc(%lu) returned %p, recent GC #%lu\n",
+                   (unsigned long)bytes, result, (unsigned long)GC_gc_no);
 #   endif
     return result;
 }
@@ -195,7 +201,7 @@ GC_API void * GC_CALL GC_other_malloc(size_t bytes) {
 }
 
 
-GC_API void * GC_CALL GC_malloc_atomic(size_t bytes)
+GC_API void * GC_CALL GC_malloc_atomic_core(size_t bytes)
 {
     size_t granules = ROUNDED_UP_GRANULES(bytes);
     void *tsd;
@@ -222,6 +228,11 @@ GC_API void * GC_CALL GC_malloc_atomic(size_t bytes)
     tiny_fl = ((GC_tlfs)tsd) -> ptrfree_freelists;
     GC_FAST_MALLOC_GRANS(result, granules, tiny_fl, DIRECT_GRANULES, PTRFREE,
                          GC_core_malloc_atomic(bytes), (void)0 /* no init */);
+    return result;
+}
+
+GC_API void * GC_CALL GC_malloc_atomic(size_t bytes) {
+    void *result = GC_malloc_atomic_core(bytes);
 #   ifdef LOG_ALLOCS
     GC_log_printf("GC_malloc_atomic(%lu) returned %p (wrap), recent GC #%lu\n",
                  (unsigned long)bytes, result, (unsigned long)GC_gc_no);

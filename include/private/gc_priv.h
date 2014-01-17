@@ -1869,6 +1869,9 @@ GC_INNER ptr_t GC_allocobj(size_t sz, int kind);
 # endif
 #endif /* THREAD_LOCAL_ALLOC */
 
+GC_API GC_ATTR_MALLOC GC_ATTR_ALLOC_SIZE(1)
+void * GC_CALL GC_malloc_uncollectable_core(size_t /* size_in_bytes */);
+
 GC_INNER void GC_init_headers(void);
 GC_INNER struct hblkhdr * GC_install_header(struct hblk *h);
                                 /* Install a header for block h.        */

@@ -1014,6 +1014,12 @@ GC_API void GC_CALL GC_gcollect(void)
     if (GC_have_errors) GC_print_all_errors();
 }
 
+GC_API void GC_CALL GC_gcollect_from(size_t ignored)
+{
+    GC_gcollect();
+}
+
+
 STATIC word GC_heapsize_at_forced_unmap = 0;
 
 GC_API void GC_CALL GC_gcollect_and_unmap(void)

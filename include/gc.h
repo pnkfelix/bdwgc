@@ -540,6 +540,7 @@ GC_API void GC_CALL GC_debug_register_displacement(size_t /* n */);
 
 /* Explicitly trigger a full, world-stop collection.    */
 GC_API void GC_CALL GC_gcollect(void);
+GC_API void GC_CALL GC_gcollect_from(size_t);
 
 /* Same as above but ignores the default stop_func setting and tries to */
 /* unmap as much memory as possible (regardless of the corresponding    */

@@ -226,7 +226,7 @@ GC_API void * GC_CALL GC_generic_malloc(size_t lb, int k)
 #ifdef THREAD_LOCAL_ALLOC
   GC_INNER void * GC_core_malloc_atomic(size_t lb)
 #else
-  GC_API void * GC_CALL GC_malloc_atomic(size_t lb)
+  GC_API void * GC_CALL GC_malloc_atomic_core(size_t lb)
 #endif
 {
     void *op;
@@ -245,16 +245,23 @@ GC_API void * GC_CALL GC_generic_malloc(size_t lb, int k)
         GC_aobjfreelist[lg] = obj_link(op);
         GC_bytes_allocd += GRANULES_TO_BYTES(lg);
         UNLOCK();
-        op = op;
    } else {
         op = (GENERAL_MALLOC((word)lb, PTRFREE));
    }
+   return((void *) op);
+}
+
+#ifndef THREAD_LOCAL_ALLOC
+GC_INNER void * GC_malloc_atomic(size_t lb)
+{
+   void *op = GC_malloc_atomic_core(lb);
 #  ifdef LOG_ALLOCS
    GC_log_printf("GC_malloc_atomic(%lu) returned %p, recent GC #%lu\n",
                  (unsigned long)lb, op, (unsigned long)GC_gc_no);
 #  endif
    return((void *) op);
 }
+#endif
 
 /* Allocate lb bytes of composite (pointerful) data */
 #ifdef THREAD_LOCAL_ALLOC
@@ -292,7 +299,7 @@ GC_API void * GC_CALL GC_generic_malloc(size_t lb, int k)
 }
 
 /* Allocate lb bytes of pointerful, traced, but not collectible data.   */
-GC_API void * GC_CALL GC_malloc_uncollectable(size_t lb)
+GC_API void * GC_CALL GC_malloc_uncollectable_core(size_t lb)
 {
     void *op;
     size_t lg;
@@ -344,23 +351,24 @@ GC_API void * GC_CALL GC_malloc_uncollectable(size_t lb)
         UNLOCK();
         op = ((void *) op);
     }
+    return((void *) op);
+}
+
+GC_API void * GC_CALL GC_malloc_uncollectable(size_t lb) {
+    void *op = GC_malloc_uncollectable_core(lb);
 #   ifdef LOG_ALLOCS
       GC_log_printf("GC_malloc_uncollectable(%lu) returned %p, recent GC #%lu\n",
                     (unsigned long)lb, op, (unsigned long)GC_gc_no);
 #   endif
     return((void *) op);
 }
-
-GC_API void * GC_CALL GC_exchange_malloc_uncollectable(size_t lb)
-{
+GC_API void * GC_CALL GC_exchange_malloc_uncollectable(size_t lb) {
     return GC_malloc_uncollectable(lb);
 }
-GC_API void * GC_CALL GC_proc_malloc_uncollectable(size_t lb)
-{
+GC_API void * GC_CALL GC_proc_malloc_uncollectable(size_t lb) {
     return GC_malloc_uncollectable(lb);
 }
-GC_API void * GC_CALL GC_other_malloc_uncollectable(size_t lb)
-{
+GC_API void * GC_CALL GC_other_malloc_uncollectable(size_t lb) {
     return GC_malloc_uncollectable(lb);
 }
 

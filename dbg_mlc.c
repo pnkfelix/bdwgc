@@ -506,14 +506,14 @@ GC_API void GC_CALL GC_debug_register_displacement(size_t offset)
 # endif
 #endif /* GC_ADD_CALLER */
 
-GC_API void * GC_CALL GC_debug_malloc(size_t lb, GC_EXTRA_PARAMS)
+GC_API void * GC_CALL GC_debug_malloc_core(size_t lb, GC_EXTRA_PARAMS)
 {
     void * result;
 
     /* Note that according to malloc() specification, if size is 0 then */
     /* malloc() returns either NULL, or a unique pointer value that can */
     /* later be successfully passed to free(). We always do the latter. */
-    result = GC_malloc(lb + DEBUG_BYTES);
+    result = GC_malloc_core(lb + DEBUG_BYTES);
 #   ifdef GC_ADD_CALLER
       if (s == NULL) {
         GC_caller_func_offset(ra, &s, &i);
@@ -529,6 +529,11 @@ GC_API void * GC_CALL GC_debug_malloc(size_t lb, GC_EXTRA_PARAMS)
     }
     ADD_CALL_CHAIN(result, ra);
     result = (GC_store_debug_info(result, (word)lb, s, i));
+    return result;
+}
+
+GC_API void * GC_CALL GC_debug_malloc(size_t lb, GC_EXTRA_PARAMS) {
+    void *result = GC_debug_malloc_core(lb, GC_EXTRAS);
 #   ifdef LOG_ALLOCS
       GC_log_printf("GC_debug_malloc(%lu) returned %p (wrap, offet), recent GC #%lu\n",
                     (unsigned long)lb, result, (unsigned long)GC_gc_no);
@@ -710,7 +715,7 @@ GC_API void * GC_CALL GC_debug_malloc_atomic_ignore_off_page(size_t lb,
                                 const void * p GC_ATTR_UNUSED) {}
 #endif /* !STUBBORN_ALLOC */
 
-GC_API void * GC_CALL GC_debug_malloc_atomic(size_t lb, GC_EXTRA_PARAMS)
+GC_API void * GC_CALL GC_debug_malloc_atomic_core(size_t lb, GC_EXTRA_PARAMS)
 {
     void * result = GC_malloc_atomic(lb + DEBUG_BYTES);
 
@@ -724,13 +729,17 @@ GC_API void * GC_CALL GC_debug_malloc_atomic(size_t lb, GC_EXTRA_PARAMS)
     }
     ADD_CALL_CHAIN(result, ra);
     result = (GC_store_debug_info(result, (word)lb, s, i));
+    return result;
+}
+
+GC_API void * GC_CALL GC_debug_malloc_atomic(size_t lb, GC_EXTRA_PARAMS) {
+    void *result = GC_debug_malloc_atomic_core(lb, GC_EXTRAS);
 #   ifdef LOG_ALLOCS
       GC_log_printf("GC_debug_malloc_atomic(%lu) returned %p (wrapped, offet), recent GC #%lu\n",
                     (unsigned long)lb, result, (unsigned long)GC_gc_no);
 #   endif
     return result;
 }
-
 GC_API void * GC_CALL GC_debug_exchange_malloc_atomic(size_t lb, GC_EXTRA_PARAMS) {
     return GC_debug_malloc_atomic(lb, GC_EXTRAS);
 }
@@ -803,10 +812,10 @@ GC_API char * GC_CALL GC_debug_strndup(const char *str, size_t size,
   }
 #endif /* GC_REQUIRE_WCSDUP */
 
-GC_API void * GC_CALL GC_debug_malloc_uncollectable(size_t lb,
-                                                    GC_EXTRA_PARAMS)
+GC_API void * GC_CALL GC_debug_malloc_uncollectable_core(size_t lb,
+                                                         GC_EXTRA_PARAMS)
 {
-    void * result = GC_malloc_uncollectable(lb + UNCOLLECTABLE_DEBUG_BYTES);
+    void * result = GC_malloc_uncollectable_core(lb + UNCOLLECTABLE_DEBUG_BYTES);
 
     if (result == 0) {
         GC_err_printf("GC_debug_malloc_uncollectable(%lu)"
@@ -818,6 +827,12 @@ GC_API void * GC_CALL GC_debug_malloc_uncollectable(size_t lb,
     }
     ADD_CALL_CHAIN(result, ra);
     result = (GC_store_debug_info(result, (word)lb, s, i));
+    return result;
+}
+GC_API void * GC_CALL GC_debug_malloc_uncollectable(size_t lb,
+                                                    GC_EXTRA_PARAMS)
+{
+    void * result = GC_debug_malloc_uncollectable_core(lb, GC_EXTRAS);
 #   ifdef LOG_ALLOCS
       GC_log_printf("GC_debug_malloc_uncollectable(%lu) returned %p (wrap, offet), recent GC #%lu\n",
                     (unsigned long)lb, result, (unsigned long)GC_gc_no);
@@ -839,7 +854,7 @@ GC_API void * GC_CALL GC_debug_other_malloc_uncollectable(size_t lb,
 }
 
 #ifdef ATOMIC_UNCOLLECTABLE
-  GC_API void * GC_CALL GC_debug_malloc_atomic_uncollectable(size_t lb,
+  GC_API void * GC_CALL GC_debug_malloc_atomic_uncollectable_core(size_t lb,
                                                              GC_EXTRA_PARAMS)
   {
     void * result =
@@ -855,13 +870,18 @@ GC_API void * GC_CALL GC_debug_other_malloc_uncollectable(size_t lb,
     }
     ADD_CALL_CHAIN(result, ra);
     result = (GC_store_debug_info(result, (word)lb, s, i));
+    return result;
+  }
+  GC_API void * GC_CALL GC_debug_malloc_atomic_uncollectable(size_t lb,
+                                                             GC_EXTRA_PARAMS)
+  {
+    void *result = GC_debug_malloc_atomic_uncollectable_core(lb, GC_EXTRAS);
 #   ifdef LOG_ALLOCS
-      GC_log_printf("GC_debug_malloc_atomic_uncollectable(%lu) returned %p (wrap, offet), recent GC #%lu\n",
-                    (unsigned long)lb, result, (unsigned long)GC_gc_no);
+    GC_log_printf("GC_debug_malloc_atomic_uncollectable(%lu) returned %p (wrap, offet), recent GC #%lu\n",
+                  (unsigned long)lb, result, (unsigned long)GC_gc_no);
 #   endif
     return result;
   }
-
   GC_API void * GC_CALL GC_debug_exchange_malloc_atomic_uncollectable(size_t lb,
                                                              GC_EXTRA_PARAMS)
   {
@@ -943,6 +963,19 @@ GC_API void GC_CALL GC_debug_free(void * p)
         GC_ASSERT((word *)p + i == (word *)(base + hhdr -> hb_sz));
       }
     } /* !GC_find_leak */
+}
+
+GC_API void GC_CALL GC_debug_exchange_free(void * p) {
+    return GC_debug_free(p);
+}
+GC_API void GC_CALL GC_debug_proc_free(void * p) {
+    return GC_debug_free(p);
+}
+GC_API void GC_CALL GC_debug_managed_free(void * p) {
+    return GC_debug_free(p);
+}
+GC_API void GC_CALL GC_debug_other_free(void * p) {
+    return GC_debug_free(p);
 }
 
 #if defined(THREADS) && defined(DBG_HDRS_ALL)
