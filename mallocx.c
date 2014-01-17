@@ -146,6 +146,16 @@ GC_API void * GC_CALL GC_realloc(void * p, size_t lb)
     }
 }
 
+GC_API void * GC_CALL GC_exchange_realloc(void * p, size_t lb) {
+    return GC_realloc(p, lb);
+}
+GC_API void * GC_CALL GC_managed_realloc(void * p, size_t lb) {
+    return GC_realloc(p, lb);
+}
+GC_API void * GC_CALL GC_other_realloc(void * p, size_t lb) {
+    return GC_realloc(p, lb);
+}
+
 # if defined(REDIRECT_MALLOC) && !defined(REDIRECT_REALLOC)
 #   define REDIRECT_REALLOC GC_realloc
 # endif
@@ -552,6 +562,15 @@ GC_API int GC_CALL GC_posix_memalign(void **memptr, size_t align, size_t lb)
     }
   }
 #endif /* ATOMIC_UNCOLLECTABLE */
+
+GC_API void * GC_CALL GC_exchange_malloc_atomic_uncollectable(size_t lb)
+{
+    return GC_malloc_atomic_uncollectable(lb);
+}
+GC_API void * GC_CALL GC_other_malloc_atomic_uncollectable(size_t lb)
+{
+    return GC_malloc_atomic_uncollectable(lb);
+}
 
 /* provide a version of strdup() that uses the collector to allocate the
    copy of the string */

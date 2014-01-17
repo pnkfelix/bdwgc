@@ -181,6 +181,20 @@ GC_API void * GC_CALL GC_malloc(size_t bytes)
     return result;
 }
 
+GC_API void * GC_CALL GC_exchange_malloc(size_t bytes) {
+    return GC_malloc(bytes);
+}
+GC_API void * GC_CALL GC_proc_malloc(size_t bytes) {
+    return GC_malloc(bytes);
+}
+GC_API void * GC_CALL GC_managed_malloc(size_t bytes) {
+    return GC_malloc(bytes);
+}
+GC_API void * GC_CALL GC_other_malloc(size_t bytes) {
+    return GC_malloc(bytes);
+}
+
+
 GC_API void * GC_CALL GC_malloc_atomic(size_t bytes)
 {
     size_t granules = ROUNDED_UP_GRANULES(bytes);
@@ -208,7 +222,24 @@ GC_API void * GC_CALL GC_malloc_atomic(size_t bytes)
     tiny_fl = ((GC_tlfs)tsd) -> ptrfree_freelists;
     GC_FAST_MALLOC_GRANS(result, granules, tiny_fl, DIRECT_GRANULES, PTRFREE,
                          GC_core_malloc_atomic(bytes), (void)0 /* no init */);
+#   ifdef LOG_ALLOCS
+    GC_log_printf("GC_malloc_atomic(%lu) returned %p (wrap), recent GC #%lu\n",
+                 (unsigned long)bytes, result, (unsigned long)GC_gc_no);
+#   endif
     return result;
+}
+
+GC_API void * GC_CALL GC_exchange_malloc_atomic(size_t bytes) {
+    return GC_malloc_atomic(bytes);
+}
+GC_API void * GC_CALL GC_proc_malloc_atomic(size_t bytes) {
+    return GC_malloc_atomic(bytes);
+}
+GC_API void * GC_CALL GC_managed_malloc_atomic(size_t bytes) {
+    return GC_malloc_atomic(bytes);
+}
+GC_API void * GC_CALL GC_other_malloc_atomic(size_t bytes) {
+    return GC_malloc_atomic(bytes);
 }
 
 #ifdef GC_GCJ_SUPPORT

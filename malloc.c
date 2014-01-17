@@ -245,10 +245,15 @@ GC_API void * GC_CALL GC_generic_malloc(size_t lb, int k)
         GC_aobjfreelist[lg] = obj_link(op);
         GC_bytes_allocd += GRANULES_TO_BYTES(lg);
         UNLOCK();
-        return((void *) op);
+        op = op;
    } else {
-        return(GENERAL_MALLOC((word)lb, PTRFREE));
+        op = (GENERAL_MALLOC((word)lb, PTRFREE));
    }
+#  ifdef LOG_ALLOCS
+   GC_log_printf("GC_malloc_atomic(%lu) returned %p, recent GC #%lu\n",
+                 (unsigned long)lb, op, (unsigned long)GC_gc_no);
+#  endif
+   return((void *) op);
 }
 
 /* Allocate lb bytes of composite (pointerful) data */
@@ -316,7 +321,7 @@ GC_API void * GC_CALL GC_malloc_uncollectable(size_t lb)
             /* For small objects, the free lists are completely marked. */
         }
         GC_ASSERT(0 == op || GC_is_marked(op));
-        return((void *) op);
+        op = ((void *) op);
     } else {
         hdr * hhdr;
 
@@ -337,8 +342,26 @@ GC_API void * GC_CALL GC_malloc_uncollectable(size_t lb)
 #       endif
         hhdr -> hb_n_marks = 1;
         UNLOCK();
-        return((void *) op);
+        op = ((void *) op);
     }
+#   ifdef LOG_ALLOCS
+      GC_log_printf("GC_malloc_uncollectable(%lu) returned %p, recent GC #%lu\n",
+                    (unsigned long)lb, op, (unsigned long)GC_gc_no);
+#   endif
+    return((void *) op);
+}
+
+GC_API void * GC_CALL GC_exchange_malloc_uncollectable(size_t lb)
+{
+    return GC_malloc_uncollectable(lb);
+}
+GC_API void * GC_CALL GC_proc_malloc_uncollectable(size_t lb)
+{
+    return GC_malloc_uncollectable(lb);
+}
+GC_API void * GC_CALL GC_other_malloc_uncollectable(size_t lb)
+{
+    return GC_malloc_uncollectable(lb);
 }
 
 #ifdef REDIRECT_MALLOC
@@ -540,6 +563,12 @@ GC_API void GC_CALL GC_free(void * p)
         UNLOCK();
     }
 }
+
+/* Explicitly deallocate an object p, rust debugging wrappers. */
+GC_API void GC_CALL GC_exchange_free(void * p) { return GC_free(p); }
+GC_API void GC_CALL GC_proc_free(void * p) { return GC_free(p); }
+GC_API void GC_CALL GC_managed_free(void * p) { return GC_free(p); }
+GC_API void GC_CALL GC_other_free(void * p) { return GC_free(p); }
 
 /* Explicitly deallocate an object p when we already hold lock.         */
 /* Only used for internally allocated objects, so we can take some      */

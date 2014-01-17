@@ -528,7 +528,24 @@ GC_API void * GC_CALL GC_debug_malloc(size_t lb, GC_EXTRA_PARAMS)
         GC_start_debugging();
     }
     ADD_CALL_CHAIN(result, ra);
-    return (GC_store_debug_info(result, (word)lb, s, i));
+    result = (GC_store_debug_info(result, (word)lb, s, i));
+#   ifdef LOG_ALLOCS
+      GC_log_printf("GC_debug_malloc(%lu) returned %p (wrap, offet), recent GC #%lu\n",
+                    (unsigned long)lb, result, (unsigned long)GC_gc_no);
+#   endif
+    return result;
+}
+GC_API void * GC_CALL GC_exchange_debug_malloc(size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_malloc(lb, GC_EXTRAS);
+}
+GC_API void * GC_CALL GC_proc_debug_malloc(size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_malloc(lb, GC_EXTRAS);
+}
+GC_API void * GC_CALL GC_managed_debug_malloc(size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_malloc(lb, GC_EXTRAS);
+}
+GC_API void * GC_CALL GC_other_debug_malloc(size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_malloc(lb, GC_EXTRAS);
 }
 
 GC_API void * GC_CALL GC_debug_malloc_ignore_off_page(size_t lb,
@@ -545,7 +562,12 @@ GC_API void * GC_CALL GC_debug_malloc_ignore_off_page(size_t lb,
         GC_start_debugging();
     }
     ADD_CALL_CHAIN(result, ra);
-    return (GC_store_debug_info(result, (word)lb, s, i));
+    result = (GC_store_debug_info(result, (word)lb, s, i));
+#   ifdef LOG_ALLOCS
+      GC_log_printf("GC_debug_malloc_ignore_off_page(%lu) returned %p (wrapped, offet), recent GC #%lu\n",
+                    (unsigned long)lb, result, (unsigned long)GC_gc_no);
+#   endif
+    return result;
 }
 
 GC_API void * GC_CALL GC_debug_malloc_atomic_ignore_off_page(size_t lb,
@@ -562,7 +584,12 @@ GC_API void * GC_CALL GC_debug_malloc_atomic_ignore_off_page(size_t lb,
         GC_start_debugging();
     }
     ADD_CALL_CHAIN(result, ra);
-    return (GC_store_debug_info(result, (word)lb, s, i));
+    result = (GC_store_debug_info(result, (word)lb, s, i));
+#   ifdef LOG_ALLOCS
+      GC_log_printf("GC_debug_malloc_atomic_ignore_off_page(%lu) returned %p (wrapped, offet), recent GC #%lu\n",
+                    (unsigned long)lb, result, (unsigned long)GC_gc_no);
+#   endif
+    return result;
 }
 
 #ifdef DBG_HDRS_ALL
@@ -584,7 +611,12 @@ GC_API void * GC_CALL GC_debug_malloc_atomic_ignore_off_page(size_t lb,
         GC_start_debugging_inner();
     }
     ADD_CALL_CHAIN(result, GC_RETURN_ADDR);
-    return (GC_store_debug_info_inner(result, (word)lb, "INTERNAL", 0));
+    result = (GC_store_debug_info_inner(result, (word)lb, "INTERNAL", 0));
+#   ifdef LOG_ALLOCS
+      GC_log_printf("GC_debug_generic_malloc_inner(%lu) returned %p (wrapped, offet), recent GC #%lu\n",
+                    (unsigned long)lb, result, (unsigned long)GC_gc_no);
+#   endif
+    return result;
   }
 
   GC_INNER void * GC_debug_generic_malloc_inner_ignore_off_page(size_t lb,
@@ -602,7 +634,12 @@ GC_API void * GC_CALL GC_debug_malloc_atomic_ignore_off_page(size_t lb,
         GC_start_debugging_inner();
     }
     ADD_CALL_CHAIN(result, GC_RETURN_ADDR);
-    return (GC_store_debug_info_inner(result, (word)lb, "INTERNAL", 0));
+    result = (GC_store_debug_info_inner(result, (word)lb, "INTERNAL", 0));
+#   ifdef LOG_ALLOCS
+      GC_log_printf("GC_debug_generic_malloc_inner_ignore_off_page(%lu) returned %p (wrapped, offet), recent GC #%lu\n",
+                    (unsigned long)lb, result, (unsigned long)GC_gc_no);
+#   endif
+    return result;
   }
 #endif /* DBG_HDRS_ALL */
 
@@ -620,7 +657,12 @@ GC_API void * GC_CALL GC_debug_malloc_atomic_ignore_off_page(size_t lb,
         GC_start_debugging();
     }
     ADD_CALL_CHAIN(result, ra);
-    return (GC_store_debug_info(result, (word)lb, s, i));
+    result = (GC_store_debug_info(result, (word)lb, s, i));
+#   ifdef LOG_ALLOCS
+      GC_log_printf("GC_debug_malloc_stubborn(%lu) returned %p (wrapped, offet), recent GC #%lu\n",
+                    (unsigned long)lb, result, (unsigned long)GC_gc_no);
+#   endif
+    return result;
   }
 
   GC_API void GC_CALL GC_debug_change_stubborn(const void *p)
@@ -681,7 +723,25 @@ GC_API void * GC_CALL GC_debug_malloc_atomic(size_t lb, GC_EXTRA_PARAMS)
         GC_start_debugging();
     }
     ADD_CALL_CHAIN(result, ra);
-    return (GC_store_debug_info(result, (word)lb, s, i));
+    result = (GC_store_debug_info(result, (word)lb, s, i));
+#   ifdef LOG_ALLOCS
+      GC_log_printf("GC_debug_malloc_atomic(%lu) returned %p (wrapped, offet), recent GC #%lu\n",
+                    (unsigned long)lb, result, (unsigned long)GC_gc_no);
+#   endif
+    return result;
+}
+
+GC_API void * GC_CALL GC_debug_exchange_malloc_atomic(size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_malloc_atomic(lb, GC_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_proc_malloc_atomic(size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_malloc_atomic(lb, GC_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_managed_malloc_atomic(size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_malloc_atomic(lb, GC_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_other_malloc_atomic(size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_malloc_atomic(lb, GC_EXTRAS);
 }
 
 GC_API char * GC_CALL GC_debug_strdup(const char *str, GC_EXTRA_PARAMS)
@@ -757,7 +817,25 @@ GC_API void * GC_CALL GC_debug_malloc_uncollectable(size_t lb,
         GC_start_debugging();
     }
     ADD_CALL_CHAIN(result, ra);
-    return (GC_store_debug_info(result, (word)lb, s, i));
+    result = (GC_store_debug_info(result, (word)lb, s, i));
+#   ifdef LOG_ALLOCS
+      GC_log_printf("GC_debug_malloc_uncollectable(%lu) returned %p (wrap, offet), recent GC #%lu\n",
+                    (unsigned long)lb, result, (unsigned long)GC_gc_no);
+#   endif
+    return result;
+}
+
+GC_API void * GC_CALL GC_debug_exchange_malloc_uncollectable(size_t lb,
+                                                    GC_EXTRA_PARAMS) {
+    return GC_debug_malloc_uncollectable(lb, GC_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_proc_malloc_uncollectable(size_t lb,
+                                                    GC_EXTRA_PARAMS) {
+    return GC_debug_malloc_uncollectable(lb, GC_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_other_malloc_uncollectable(size_t lb,
+                                                    GC_EXTRA_PARAMS) {
+    return GC_debug_malloc_uncollectable(lb, GC_EXTRAS);
 }
 
 #ifdef ATOMIC_UNCOLLECTABLE
@@ -776,8 +854,30 @@ GC_API void * GC_CALL GC_debug_malloc_uncollectable(size_t lb,
         GC_start_debugging();
     }
     ADD_CALL_CHAIN(result, ra);
-    return (GC_store_debug_info(result, (word)lb, s, i));
+    result = (GC_store_debug_info(result, (word)lb, s, i));
+#   ifdef LOG_ALLOCS
+      GC_log_printf("GC_debug_malloc_atomic_uncollectable(%lu) returned %p (wrap, offet), recent GC #%lu\n",
+                    (unsigned long)lb, result, (unsigned long)GC_gc_no);
+#   endif
+    return result;
   }
+
+  GC_API void * GC_CALL GC_debug_exchange_malloc_atomic_uncollectable(size_t lb,
+                                                             GC_EXTRA_PARAMS)
+  {
+      return GC_debug_malloc_atomic_uncollectable(lb, GC_EXTRAS);
+  }
+  GC_API void * GC_CALL GC_debug_proc_malloc_atomic_uncollectable(size_t lb,
+                                                             GC_EXTRA_PARAMS)
+  {
+      return GC_debug_malloc_atomic_uncollectable(lb, GC_EXTRAS);
+  }
+  GC_API void * GC_CALL GC_debug_other_malloc_atomic_uncollectable(size_t lb,
+                                                             GC_EXTRA_PARAMS)
+  {
+      return GC_debug_malloc_atomic_uncollectable(lb, GC_EXTRAS);
+  }
+
 #endif /* ATOMIC_UNCOLLECTABLE */
 
 #ifndef GC_FREED_MEM_MARKER
@@ -922,6 +1022,19 @@ GC_API void * GC_CALL GC_debug_realloc(void * p, size_t lb, GC_EXTRA_PARAMS)
       GC_debug_free(p);
     }
     return(result);
+}
+
+GC_API void * GC_CALL GC_debug_exchange_realloc(void * p, size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_realloc(p, lb, GC_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_proc_realloc(void * p, size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_realloc(p, lb, GC_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_managed_realloc(void * p, size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_realloc(p, lb, GC_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_other_realloc(void * p, size_t lb, GC_EXTRA_PARAMS) {
+    return GC_debug_realloc(p, lb, GC_EXTRAS);
 }
 
 #ifndef SHORT_DBG_HDRS
@@ -1211,8 +1324,40 @@ GC_API void * GC_CALL GC_debug_malloc_replacement(size_t lb)
 {
     return GC_debug_malloc(lb, GC_DBG_EXTRAS);
 }
+GC_API void * GC_CALL GC_debug_exchange_malloc_replacement(size_t lb)
+{
+    return GC_debug_malloc(lb, GC_DBG_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_proc_malloc_replacement(size_t lb)
+{
+    return GC_debug_malloc(lb, GC_DBG_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_managed_malloc_replacement(size_t lb)
+{
+    return GC_debug_malloc(lb, GC_DBG_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_other_malloc_replacement(size_t lb)
+{
+    return GC_debug_malloc(lb, GC_DBG_EXTRAS);
+}
 
 GC_API void * GC_CALL GC_debug_realloc_replacement(void *p, size_t lb)
+{
+    return GC_debug_realloc(p, lb, GC_DBG_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_exchange_realloc_replacement(void *p, size_t lb)
+{
+    return GC_debug_realloc(p, lb, GC_DBG_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_proc_realloc_replacement(void *p, size_t lb)
+{
+    return GC_debug_realloc(p, lb, GC_DBG_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_managed_realloc_replacement(void *p, size_t lb)
+{
+    return GC_debug_realloc(p, lb, GC_DBG_EXTRAS);
+}
+GC_API void * GC_CALL GC_debug_other_realloc_replacement(void *p, size_t lb)
 {
     return GC_debug_realloc(p, lb, GC_DBG_EXTRAS);
 }
