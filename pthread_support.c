@@ -1523,11 +1523,24 @@ GC_API int GC_CALL GC_mutate_my_stack_base(const struct GC_stack_base *sb)
 {
     pthread_t self = pthread_self();
     GC_thread me;
+    struct GC_stack_base new_base;
     DCL_LOCK_STATE;
 
     LOCK();
     me = GC_lookup_thread(self);
     GC_ASSERT(me != 0);
+    if (sb->mem_base == 0) {
+        // XXX FIXME this is not right.  When the mem_base is 0, I
+        // need to find the main thread's stack base.  The code below
+        // only works if the current thread happens to be the same as
+        // the main thread.  I suspect the appropriate fix is to
+        // force the caller to always pass a value stack_base rather
+        // than try to compensate for it here.
+        int result = GC_get_stack_base(&new_base);
+        if (result != GC_SUCCESS)
+            return result;
+        sb = &new_base;
+    }
     GC_record_stack_base(me, sb);
     UNLOCK();
     return GC_SUCCESS;
