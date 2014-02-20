@@ -1519,6 +1519,20 @@ GC_INLINE void GC_record_stack_base(GC_thread me,
 #   endif
 }
 
+GC_API int GC_CALL GC_mutate_my_stack_base(const struct GC_stack_base *sb)
+{
+    pthread_t self = pthread_self();
+    GC_thread me;
+    DCL_LOCK_STATE;
+
+    LOCK();
+    me = GC_lookup_thread(self);
+    GC_ASSERT(me != 0);
+    GC_record_stack_base(me, sb);
+    UNLOCK();
+    return GC_SUCCESS;
+}
+
 STATIC GC_thread GC_register_my_thread_inner(const struct GC_stack_base *sb,
                                              pthread_t my_pthread)
 {

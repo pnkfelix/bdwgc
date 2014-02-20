@@ -1303,6 +1303,12 @@ GC_API void * GC_CALL GC_call_with_stack_base(GC_stack_base_func /* fn */,
   GC_API int GC_CALL GC_register_my_thread(const struct GC_stack_base *)
                                                         GC_ATTR_NONNULL(1);
 
+  /* This is a hack Felix is putting in to allow user-space threads      */
+  /* in the Rust runtime to install new stack-bases when a new task      */
+  /* is swapped onto a pre-existing pthread.                             */
+  GC_API int GC_CALL GC_mutate_my_stack_base(const struct GC_stack_base *)
+                                                          GC_ATTR_NONNULL(1);
+
   /* Return non-zero (TRUE) if and only if the calling thread is        */
   /* registered with the garbage collector.                             */
   GC_API int GC_CALL GC_thread_is_registered(void);
