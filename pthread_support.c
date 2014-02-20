@@ -1615,8 +1615,8 @@ GC_INNER_PTHRSTART GC_thread GC_start_rtn_prepare_thread(
     DCL_LOCK_STATE;
 
 #   ifdef DEBUG_THREADS
-      GC_log_printf("Starting thread %p, pid = %ld, sp = %p\n",
-                    (void *)self, (long)getpid(), &arg);
+      GC_log_printf("Starting thread %p, pid = %ld, sb = %p sp = %p\n",
+                    (void *)self, (long)getpid(), sb->mem_base, &arg);
 #   endif
     LOCK();
     me = GC_register_my_thread_inner(sb, self);

@@ -1016,6 +1016,8 @@ GC_API void GC_CALL GC_gcollect(void)
 
 GC_API void GC_CALL GC_gcollect_from(size_t ignored)
 {
+    GC_log_printf("GC_gcollect_from(%lu) recent GC #%lu thread: %p GC_approx_sp: %p\n",
+                  ignored, (unsigned long)GC_gc_no, (void*)pthread_self(), (void*)GC_approx_sp());
     GC_gcollect();
 }
 

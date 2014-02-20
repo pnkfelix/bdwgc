@@ -834,8 +834,9 @@ GC_API void * GC_CALL GC_debug_malloc_uncollectable(size_t lb,
 {
     void * result = GC_debug_malloc_uncollectable_core(lb, GC_EXTRAS);
 #   ifdef LOG_ALLOCS
-      GC_log_printf("GC_debug_malloc_uncollectable(%lu) returned %p (wrap, offet), recent GC #%lu\n",
-                    (unsigned long)lb, result, (unsigned long)GC_gc_no);
+      GC_log_printf("GC_debug_malloc_uncollectable(%lu) returned %p (wrap, offet), recent GC #%lu thread: %p GC_approx_sp: %p\n",
+                    (unsigned long)lb, result, (unsigned long)GC_gc_no,
+                    (void*)pthread_self(), (void*)GC_approx_sp());
 #   endif
     return result;
 }

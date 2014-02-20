@@ -366,13 +366,16 @@ GC_INNER void GC_push_all_stacks(void)
             GC_ASSERT(!p->thread_blocked);
 #           ifdef SPARC
                 lo = (ptr_t)GC_save_regs_in_stack();
+                GC_log_printf("GC_save_regs_in_stack for thread %p yields lo %p\n", (void*)self, (void *)lo);
 #           else
                 lo = GC_approx_sp();
+                GC_log_printf("GC_approx_sp for thread %p yields lo %p\n", (void*)self, (void *)lo);
 #           endif
             found_me = TRUE;
             IF_IA64(bs_hi = (ptr_t)GC_save_regs_in_stack();)
         } else {
             lo = p -> stop_info.stack_ptr;
+            GC_log_printf("stop_info.stack_ptr for thread %p yields lo %p\n", (void*)self, (void *)lo);
             IF_IA64(bs_hi = p -> backing_store_ptr;)
             if (traced_stack_sect != NULL
                     && traced_stack_sect->saved_stack_ptr == lo) {

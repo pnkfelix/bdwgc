@@ -48,6 +48,9 @@ GC_INNER_PTHRSTART void * GC_CALLBACK GC_inner_start_routine(
   void * (*start)(void *);
   void * start_arg;
   void * result;
+# if defined(DEBUG_THREADS)
+  GC_log_printf("GC_inner_start_routine thread %p, sb = %p\n", (void *)pthread_self(), sb->mem_base);
+# endif
   volatile GC_thread me =
                 GC_start_rtn_prepare_thread(&start, &start_arg, sb, arg);
 
